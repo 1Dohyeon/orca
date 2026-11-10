@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { isUpdaterInactiveBuild } from '../local-custom-build'
 import { isMacInstallRequested } from '../mac-install/updater-mac-install'
 import { withUpdaterSpan } from '../../observability/instrumentation'
 import {
@@ -64,7 +64,7 @@ export abstract class UpdaterScheduling extends UpdaterCheckFailure {
     if (this.backgroundCheckLaunchPending || this.currentStatus.state === 'checking') {
       return false
     }
-    if (!app.isPackaged) {
+    if (isUpdaterInactiveBuild()) {
       this.sendStatus({ state: 'not-available' })
       return false
     }
