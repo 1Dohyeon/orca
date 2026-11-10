@@ -18,6 +18,8 @@ export type TreeNode = {
   depth: number
   /** Listed through a folder link that leads out of the project, so it opens by absolute path. */
   outsideProject?: true
+  /** Inside the repo's plans folder, which the explorer shows at the top of the root. */
+  plansFolder?: true
   /** Host snapshot that produced this node. Destructive actions fail closed without it. */
   operationOwner?: FileExplorerOperationOwner
 }
@@ -36,6 +38,7 @@ export type DirCache = {
   paged?: true
   /** Listed through a project folder link that leads out of the project. */
   outsideProject?: true
+  plansFolder?: true
 }
 
 /** Retry covered dir reads after supersession, but not unreadable roots, which would add one dead transport timeout per dir. */

@@ -38,6 +38,7 @@ import { diagnosticsApi } from './api/diagnostics-bridge'
 import { settingsApi } from './api/settings-bridge'
 import { agentAwakeApi } from './api/agent-awake-bridge'
 import { localhostWorktreeLabelsApi } from './api/localhost-worktree-labels-bridge'
+import { plansFolderApi } from './api/plans-folder-bridge'
 import { keybindingsApi } from './api/keybindings-bridge'
 import { codexAccountsApi } from './api/codex-accounts-bridge'
 import { claudeAccountsApi } from './api/claude-accounts-bridge'
@@ -144,6 +145,7 @@ const api = {
   settings: settingsApi,
   agentAwake: agentAwakeApi,
   localhostWorktreeLabels: localhostWorktreeLabelsApi,
+  plans: plansFolderApi,
   keybindings: keybindingsApi,
   codexAccounts: codexAccountsApi,
   claudeAccounts: claudeAccountsApi,

@@ -48,6 +48,7 @@ import {
 } from './file-explorer-row-action-visibility'
 import { copyFileToOsClipboard, downloadRemoteFile } from './file-explorer-row-file-transfer'
 import { fileExplorerNodeTabRelativePath } from '../tree/file-explorer-directory-listing'
+import { isPlansFolderRoot } from '../plans-folder/plans-folder-node'
 
 const isMac = navigator.userAgent.includes('Mac')
 
@@ -122,7 +123,7 @@ export function FileExplorerRowContextMenu({
   )
   const revealBlocked = isRevealOrEditorOpenBlocked(revealOwner)
   // Why: only opened files save outside projects; main refuses tree edits under an outside folder link.
-  const writesBlocked = node.outsideProject === true
+  const writesBlocked = node.outsideProject === true && !node.plansFolder
   const handleOpenInOrcaBrowser = useCallback(() => {
     if (!activeWorktreeId) {
       return
@@ -266,14 +267,21 @@ export function FileExplorerRowContextMenu({
         {revealBlocked ? <LocalOnlyMenuHint /> : null}
       </ContextMenuItem>
       <ContextMenuSeparator />
-      <ContextMenuItem disabled={writesBlocked} onSelect={() => onStartRename(node)}>
+      <ContextMenuItem
+        disabled={writesBlocked || isPlansFolderRoot(node)}
+        onSelect={() => onStartRename(node)}
+      >
         <Pencil />
         {t('auto.components.right.sidebar.FileExplorerRow.fc747429bf', 'Rename')}
         <ContextMenuShortcut>
           {isMac ? '↩' : t('auto.components.right.sidebar.FileExplorerRow.a06551beee', 'Enter')}
         </ContextMenuShortcut>
       </ContextMenuItem>
-      <ContextMenuItem variant="destructive" disabled={writesBlocked} onSelect={onRequestDelete}>
+      <ContextMenuItem
+        variant="destructive"
+        disabled={writesBlocked || isPlansFolderRoot(node)}
+        onSelect={onRequestDelete}
+      >
         <Trash2 />
         {t('auto.components.right.sidebar.FileExplorerRow.addc01145f', 'Delete')}
         <ContextMenuShortcut>{deleteShortcutLabel}</ContextMenuShortcut>
