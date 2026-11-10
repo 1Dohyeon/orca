@@ -12,6 +12,10 @@ jobs:
       github.event.issue.state == 'open' &&
       contains(github.event.comment.body, '/upstream-review') &&
       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    # Job-level so comments that fail the if do not join the group and cancel a running review.
+    concurrency:
+      group: upstream-review-${{ github.event.issue.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,4 +50,4 @@ jobs:
           trigger_phrase: /upstream-review
           claude_args: |
             --append-system-prompt '${{ steps.prompt.outputs.text }}'
-            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git grep:*),Bash(git merge-tree:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git for-each-ref:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
+            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git merge-tree:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git for-each-ref:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
