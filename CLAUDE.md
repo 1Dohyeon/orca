@@ -32,10 +32,10 @@ This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md`
 - Always pass `--repo 1Dohyeon/orca` to `gh`. Without it, `gh` may target `stablyai/orca` because this repository is a fork.
 - Title: a Conventional Commit subject, like upstream (`feat(scope): summary`). Pick the scope from the area the change lives in.
 - Body: use the sections of `.github/pull_request_template.md`, but write only what can be stated in text. Leave out `Linked Issue`, `Visual Proof`, and the screenshot checklist item. State unverified items and failing checks as they are, and check a checklist item only when it is true.
-- To check a PR against the latest `stablyai/orca` main, comment `/upstream-review` on it without `@claude`. `.github/workflows/upstream-review.yml` reports text and semantic conflicts with the upstream SHA and nearest release tag it used.
 - Merge only when the user asks. Use squash merge, with the subject `<PR title> (1Dohyeon/orca#<PR number>)`.
 - Squash body: list each PR commit subject as `* <subject>`, separated by blank lines, without commit body details (they stay visible in the merged PR). Pass it with `--body-file` so GitHub does not fill in its default body:
   `gh pr merge <number> --repo 1Dohyeon/orca --squash --subject "<PR title> (1Dohyeon/orca#<number>)" --body-file <file>`
+- Exception: upstream sync PRs (head `main` or `sync/upstream-*`, see Syncing Upstream) use a merge commit, never squash. Squashing keeps `main` out of `develop`'s history, so every later sync re-applies the same upstream changes and conflicts again.
 - Use the full `1Dohyeon/orca#<number>` reference. A bare `#<number>` links to the PR of whichever repository shows the commit, so it would point at an unrelated `stablyai/orca` PR there, and `1Dohyeon#<number>` is not linked by GitHub at all.
 - After the merge, update the local `develop` with `git pull --ff-only origin develop`.
 
@@ -43,15 +43,22 @@ Upstream contributions follow the full upstream template instead, including a li
 
 ### Syncing Upstream
 
-Precondition: the current branch is `develop` and the working tree is clean. Otherwise stop and report.
+`main` is the only branch that touches upstream. Upstream changes reach `develop` by merging `main` into it through a PR, so `develop` is never rewritten or force-pushed.
+
+Precondition: the working tree is clean. Otherwise stop and report.
 
 1. If the `upstream` remote is missing, add it: `git remote add upstream https://github.com/stablyai/orca`
 2. `git fetch upstream`
 3. Update `main`: `git push origin upstream/main:main`, then `git fetch origin main:main`
    - If the fast-forward is rejected, `main` has diverged from upstream. Do not force it; stop and report.
-4. On `develop`, run `git rebase main`.
-5. Resolve conflicts (during a rebase, `--ours` is `main` and `--theirs` is the custom commit).
-   - `README.md`, `CLAUDE.md`: Keep the custom version (`git checkout --theirs <file>`).
-   - Other files: Preserve both the upstream change and the custom intent. If the intent is unclear, stop and ask.
-6. Verify: run `pnpm install` if the lockfile changed, then `pnpm tc`.
-7. Report the number of upstream commits pulled in, conflicted files and how each was resolved, and the verification results. Run `git push --force-with-lease origin develop` only after the user approves.
+4. Open a PR from `main` into `develop`, titled `chore(sync): merge upstream main <short SHA> into develop`. Check for conflicts first with `git merge-tree --write-tree --name-only --no-messages origin/main origin/develop` (exit code 1 lists the conflicting files) and report them.
+5. If the PR has no conflicts, go to step 8.
+6. If it has conflicts, the user comments `/upstream-review` on that PR (without `@claude`). `.github/workflows/upstream-review.yml` shows each conflict's custom and upstream sides, proposes resolutions, and checks semantic conflicts against the incoming upstream commits. Do not use GitHub's "Resolve conflicts" button on this PR: it commits onto `main`.
+7. Resolve on a branch instead:
+   - Create `sync/upstream-<YYYYMMDD>` from `origin/develop` (same steps as any work branch) and run `git merge --no-ff origin/main`.
+   - During a merge, `--ours` is `develop` and `--theirs` is `main`. Keep the custom `README.md` and `CLAUDE.md` (`git checkout --ours <file>`). In other files preserve both the upstream change and the custom intent; if the intent is unclear, stop and ask.
+   - Verify: run `pnpm install` if the lockfile changed, then `pnpm tc`.
+   - Push, open a PR from this branch into `develop`, and close the `main` PR with a link to it. `/upstream-review` on the new PR checks the resolutions.
+   - Report the number of upstream commits pulled in, conflicted files and how each was resolved, and the verification results.
+8. Merge only when the user asks, with a merge commit:
+   `gh pr merge <number> --repo 1Dohyeon/orca --merge --subject "<PR title> (1Dohyeon/orca#<number>)" --body ""`
