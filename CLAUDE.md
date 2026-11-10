@@ -6,6 +6,7 @@
 
 - Write everything that lands in this repository in English: code, comments, docs, commit messages, branch names, and PR text.
 - Reply to the user in the user's configured language. Only repository artifacts follow the English rule.
+- Comments that Claude posts on pull requests from CI (`@claude` reviews, inline comments, and replies) are PR text. Write them in English.
 
 ## Test Runs
 
