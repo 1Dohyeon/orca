@@ -2,27 +2,32 @@
 
 @AGENTS.md
 
-## Fork 운영 규칙
+## Language Rule
 
-이 저장소는 `stablyai/orca`의 개인 커스텀 fork다. 코드 규칙은 `AGENTS.md`를 따르고, 이 문서는 브랜치 운영만 다룬다.
+- Write everything that lands in this repository in English: code, comments, docs, commit messages, branch names, and PR text.
+- Reply to the user in the user's configured language. Only repository artifacts follow the English rule.
 
-### 브랜치
+## Fork Workflow
 
-- `main`: `upstream/main`과 같은 상태로만 유지한다. 직접 커밋하지 않는다.
-- `develop`: 커스텀 작업 브랜치다. 커스텀 작업의 베이스는 `develop`이다.
-- 원본 기여 브랜치(`feat/*`, `fix/*` 등): 베이스는 `main`이다. `develop`에서 만들지 않는다. PR은 `stablyai/orca`의 `main`으로 올린다.
+This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md` for code rules; this section covers branch management only.
 
-### 원본 업데이트 반영
+### Branches
 
-시작 조건: 현재 브랜치가 `develop`이고 작업 트리가 clean해야 한다. 아니면 멈추고 보고한다.
+- `main`: Keep it identical to `upstream/main`. Never commit to it directly.
+- `develop`: The custom work branch. Custom work is based on `develop`.
+- Upstream contribution branches (`feat/*`, `fix/*`, etc.): Base them on `main`, never on `develop`. Open PRs against `stablyai/orca` `main`.
 
-1. `upstream` 원격이 없으면 추가한다: `git remote add upstream https://github.com/stablyai/orca`
+### Syncing Upstream
+
+Precondition: the current branch is `develop` and the working tree is clean. Otherwise stop and report.
+
+1. If the `upstream` remote is missing, add it: `git remote add upstream https://github.com/stablyai/orca`
 2. `git fetch upstream`
-3. `main` 갱신: `git push origin upstream/main:main` 후 `git fetch origin main:main`
-   - fast-forward가 거부되면 `main`이 원본과 갈라진 것이다. 강제로 맞추지 말고 멈추고 보고한다.
-4. `develop`에서 `git rebase main`
-5. 충돌 해결 (rebase 중에는 `--ours`가 `main`, `--theirs`가 커스텀 커밋이다)
-   - `README.md`, `CLAUDE.md`: 커스텀 버전을 유지한다(`git checkout --theirs <file>`).
-   - 그 밖의 파일: 원본 변경과 커스텀 의도를 모두 살린다. 의도가 불분명하면 멈추고 묻는다.
-6. 검증: lockfile이 바뀌었으면 `pnpm install`, 이어서 `pnpm tc`를 실행한다.
-7. 결과(가져온 원본 커밋 수, 충돌 파일과 해결 방식, 검증 결과)를 보고한다. `git push --force-with-lease origin develop`은 사용자 승인 후에만 한다.
+3. Update `main`: `git push origin upstream/main:main`, then `git fetch origin main:main`
+   - If the fast-forward is rejected, `main` has diverged from upstream. Do not force it; stop and report.
+4. On `develop`, run `git rebase main`.
+5. Resolve conflicts (during a rebase, `--ours` is `main` and `--theirs` is the custom commit).
+   - `README.md`, `CLAUDE.md`: Keep the custom version (`git checkout --theirs <file>`).
+   - Other files: Preserve both the upstream change and the custom intent. If the intent is unclear, stop and ask.
+6. Verify: run `pnpm install` if the lockfile changed, then `pnpm tc`.
+7. Report the number of upstream commits pulled in, conflicted files and how each was resolved, and the verification results. Run `git push --force-with-lease origin develop` only after the user approves.
