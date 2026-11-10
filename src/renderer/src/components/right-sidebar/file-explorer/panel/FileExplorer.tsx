@@ -34,6 +34,8 @@ import {
 } from '../tree/file-explorer-name-filter-projection'
 import { useFileExplorerManualRefresh } from './useFileExplorerManualRefresh'
 import { useFileExplorerTree } from '../tree/useFileExplorerTree'
+import { usePlansFolderRoot } from '../plans-folder/use-plans-folder-root'
+import { usePlansFolderTree } from '../plans-folder/use-plans-folder-tree'
 import { getFileExplorerOperationOwnerFromState } from '../navigation/file-explorer-operation-owner'
 import { useFileExplorerSelection } from '../selection/useFileExplorerSelection'
 import { useFileExplorerVisibleRowProjection } from '../tree/useFileExplorerVisibleRowProjection'
@@ -107,7 +109,12 @@ function FileExplorerFiles(): React.JSX.Element {
       ),
     [expanded, visibleFilesWorktreePath, displayRootPath, worktreePath]
   )
-  const tree = useFileExplorerTree(worktreePath, effectiveExpanded, activeWorktreeId)
+  const plansRoot = usePlansFolderRoot(worktreePath, activeWorktreeId, activeRepoSupportsGit)
+  const tree = usePlansFolderTree(
+    useFileExplorerTree(worktreePath, effectiveExpanded, activeWorktreeId),
+    worktreePath,
+    plansRoot
+  )
   const {
     nameFilterQuery,
     setNameFilterQuery,

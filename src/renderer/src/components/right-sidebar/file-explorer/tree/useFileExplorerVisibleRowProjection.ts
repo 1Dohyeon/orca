@@ -52,6 +52,10 @@ export function getFileExplorerIgnoredQueryRelativePaths(
       return
     }
     for (const row of cached.children) {
+      // Plans rows live outside the repo; Git rejects their paths in an ignore query.
+      if (row.plansFolder) {
+        continue
+      }
       if (!showDotfiles && isDotfileRelativePath(row.relativePath, worktreePath)) {
         continue
       }
