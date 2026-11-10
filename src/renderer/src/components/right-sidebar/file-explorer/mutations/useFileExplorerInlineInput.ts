@@ -3,7 +3,7 @@ import type React from 'react'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/index'
 import { detectLanguage } from '../../../../../../shared/editor-language/editor-language-detect'
-import { dirname, joinPath } from '@/lib/path'
+import { dirname, getRelativePathInsideRoot, joinPath } from '@/lib/path'
 import { extractIpcErrorMessage, renameFileOnDisk } from '@/lib/rename-file'
 import type { InlineInput } from './file-explorer-inline-input-row'
 import type { TreeNode } from '../tree/file-explorer-types'
@@ -220,7 +220,8 @@ export function useFileExplorerInlineInput({
               openFile(
                 {
                   filePath: fullPath,
-                  relativePath: worktreePath ? fullPath.slice(worktreePath.length + 1) : name,
+                  // Files created outside the worktree (the plans folder) open by absolute path.
+                  relativePath: getRelativePathInsideRoot(fullPath, worktreePath) ?? fullPath,
                   worktreeId: activeWorktreeId,
                   runtimeEnvironmentId: runtimeEnvironmentId ?? undefined,
                   language: detectLanguage(name),

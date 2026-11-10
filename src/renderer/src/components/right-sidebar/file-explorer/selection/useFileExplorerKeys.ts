@@ -6,6 +6,7 @@ import { getShortcutPlatform } from '@/lib/keyboard/shortcut-platform'
 import type { InlineInput } from '../mutations/file-explorer-inline-input-row'
 import type { TreeNode } from '../tree/file-explorer-types'
 import type { FileExplorerRowProjection } from '../tree/file-explorer-row-projection'
+import { isPlansFolderRoot } from '../plans-folder/plans-folder-node'
 import { formatFileExplorerPathsForClipboard } from './file-explorer-selection'
 import type { LocalPathOpenOwner } from '@/lib/local-path-open-guard'
 import {
@@ -217,7 +218,7 @@ export function useFileExplorerKeys(opts: {
           (focused !== null ? rowProjectionRef.current.getRowAtIndex(focused) : null) ??
           selectedNodeRef.current
         // Rows listed through an outside folder link are browse-only; main refuses their writes.
-        if (node && !node.outsideProject) {
+        if (node && (!node.outsideProject || node.plansFolder) && !isPlansFolderRoot(node)) {
           if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey) {
             e.preventDefault()
             startRenameRef.current(node)
@@ -233,7 +234,10 @@ export function useFileExplorerKeys(opts: {
             e.preventDefault()
             const selectedNodes = rowProjectionRef.current
               .getRowsByPaths(selectedPathsRef.current)
-              .filter((selected) => !selected.outsideProject)
+              .filter(
+                (selected) =>
+                  (!selected.outsideProject || selected.plansFolder) && !isPlansFolderRoot(selected)
+              )
             requestDeleteAllRef.current(selectedNodes.length > 1 ? selectedNodes : [node])
             return
           }

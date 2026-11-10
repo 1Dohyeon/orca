@@ -10,6 +10,11 @@ export function plansFolderRowDepth(plansRoot: string, path: string): number | n
   return relative === null ? null : splitPathSegments(relative).length
 }
 
+/** The plans node itself: renaming or deleting it would move or trash every plan of the repo. */
+export function isPlansFolderRoot(node: Pick<TreeNode, 'plansFolder' | 'depth'>): boolean {
+  return node.plansFolder === true && node.depth === 0
+}
+
 export function createPlansFolderNode(
   plansRoot: string,
   operationOwner: FileExplorerOperationOwner | undefined
