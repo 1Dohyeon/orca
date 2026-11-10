@@ -34,21 +34,23 @@ execFileSync(
   }
 )
 
-const built = resolve('dist/mac-arm64/Orca.app')
-const target = '/Applications/Orca.app'
+// Matches the local-build identity in electron-builder.config.cjs, so the official Orca.app is never touched.
+const built = resolve('dist/mac-arm64/Orca Custom.app')
+const target = '/Applications/Orca Custom.app'
+const bundleId = 'com.stablyai.orca.custom'
 if (!existsSync(built)) {
   console.error(`[install:mac] Built app not found: ${built}`)
   process.exit(1)
 }
 
-// Quitting Orca also kills a terminal running inside it, so a detached shell does the swap.
+// Quitting Orca Custom also kills a terminal running inside it, so a detached shell does the swap.
 const script = `
-osascript -e 'quit app "Orca"' >/dev/null 2>&1
+osascript -e 'quit app id "${bundleId}"' >/dev/null 2>&1
 for _ in $(seq 120); do
-  pgrep -xq Orca || break
+  pgrep -fq "${target}/Contents/MacOS/" || break
   sleep 0.5
 done
-pgrep -xq Orca && exit 1
+pgrep -fq "${target}/Contents/MacOS/" && exit 1
 rm -rf "${target}.bak"
 [ -e "${target}" ] && mv "${target}" "${target}.bak"
 ditto "${built}" "${target}"
@@ -56,4 +58,4 @@ open "${target}"
 `
 
 spawn('/bin/sh', ['-c', script], { detached: true, stdio: 'ignore' }).unref()
-console.log('[install:mac] Quitting Orca, replacing it with the new build, and relaunching.')
+console.log('[install:mac] Quitting Orca Custom, replacing it with the new build, and relaunching.')

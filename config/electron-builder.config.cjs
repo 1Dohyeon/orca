@@ -120,7 +120,10 @@ const devChannelRepo = isHourlyChannel
     : isAdhocChannel
       ? 'orca-adhoc'
       : null
-const appId = 'com.stablyai.orca'
+// Local builds install beside the official app; macOS permissions, userData, and the terminal daemon all key off this identity.
+const isLocalCustomBuild = Boolean(localBuildVersion)
+const appId = isLocalCustomBuild ? 'com.stablyai.orca.custom' : 'com.stablyai.orca'
+const productName = isLocalCustomBuild ? 'Orca Custom' : 'Orca'
 const featureWallResources = {
   from: 'resources/onboarding/feature-wall',
   to: 'onboarding/feature-wall'
@@ -248,13 +251,13 @@ const ORCA_MAC_TEAM_ID = '6CX3WHS9HZ'
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
   appId,
-  productName: 'Orca',
+  productName,
   protocols: [{ name: 'Orca', schemes: ['orca'] }],
   toolsets: { appimage: '1.0.3' },
   ...(devChannelBuildVersion
     ? { extraMetadata: { version: devChannelBuildVersion } }
     : localBuildVersion
-      ? { extraMetadata: { version: localBuildVersion } }
+      ? { extraMetadata: { version: localBuildVersion, name: 'orca-custom' } }
       : {}),
   directories: {
     buildResources: 'resources/build'
@@ -538,7 +541,7 @@ module.exports = {
     }
   },
   win: {
-    executableName: 'Orca',
+    executableName: productName,
     // SignPath signs Windows installers after packaging, so set release publisherName explicitly.
     // Unsigned dev channels omit it or updater signature checks reject dev updates and return to stable.
     // Sign hook signs nothing: it relays transient NSIS uninstaller files to CI SignPath; unset relay env leaves local/dev builds inert.

@@ -33,8 +33,9 @@ if (!existsSync(installer)) {
   process.exit(1)
 }
 
-// Killing Orca also kills a terminal running inside it, so a detached console runs the installer.
-const script = `taskkill /IM Orca.exe /F >nul 2>&1 & ping -n 3 127.0.0.1 >nul & "${installer}" /S --force-run`
+// Killing Orca Custom also kills a terminal running inside it, so a detached console runs the installer.
+// Only the local-build executable is targeted; the official Orca.exe keeps running.
+const script = `taskkill /IM "Orca Custom.exe" /F >nul 2>&1 & ping -n 3 127.0.0.1 >nul & "${installer}" /S --force-run`
 
 spawn('cmd.exe', ['/d', '/s', '/c', `"${script}"`], {
   detached: true,
@@ -42,4 +43,4 @@ spawn('cmd.exe', ['/d', '/s', '/c', `"${script}"`], {
   windowsHide: true,
   windowsVerbatimArguments: true
 }).unref()
-console.log('[install:win] Closing Orca, installing the new build, and relaunching.')
+console.log('[install:win] Closing Orca Custom, installing the new build, and relaunching.')
