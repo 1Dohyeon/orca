@@ -7,6 +7,14 @@
 - Write everything that lands in this repository in English: code, comments, docs, commit messages, branch names, and PR text.
 - Reply to the user in the user's configured language. Only repository artifacts follow the English rule.
 
+## Test Runs
+
+`pnpm check:changed` runs the full unit test suite (about 8 minutes) and truncates long output. Run it once and keep everything you need from that run.
+
+- Redirect the full output to a file in the session scratchpad, then read the failure list from that file. Do not rerun the suite just to see which tests failed.
+- Before blaming or clearing your change, run the failing test files on the base checkout (`develop`) with `pnpm test <files> --maxWorkers=2`. Report failures that also fail on the base as pre-existing, and the rest as possibly caused by the change.
+- Tests under `tests/e2e/cross-version-wire/` need upstream release tags (for example `v1.4.222`). They fail with `unknown revision` unless the tags are fetched with `git fetch upstream --tags`.
+
 ## Fork Workflow
 
 This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md` for code rules; this section covers branch management only.
