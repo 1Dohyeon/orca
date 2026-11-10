@@ -1,6 +1,7 @@
 import type { Store } from '../../persistence/loading-store/store'
 import type { CommitMessageAgentEnvironmentResolvers } from '../../text-generation/commit-message-agent-environment'
 import { registerLocalLogTailHandlers } from '../local-log-tail'
+import { registerPlansFolderHandlers } from '../plans-folder-handlers'
 import { createSenderScopedRequestCancellations } from '../sender-scoped-request-cancellation'
 import {
   createFilesystemHandlerContext,
@@ -45,4 +46,5 @@ export function registerFilesystemHandlers(
   registerFilesystemGitIndexHandlers(context)
   registerFilesystemGitUrlHandlers(context)
   registerLocalLogTailHandlers(store)
+  registerPlansFolderHandlers(store)
 }

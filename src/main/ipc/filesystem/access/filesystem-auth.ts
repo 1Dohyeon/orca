@@ -6,7 +6,7 @@ import {
   windowsFsPath
 } from '../../../wsl/filesystem/wsl-unc-drive-fs-path'
 import { PATH_OUTSIDE_ALLOWED_DIRECTORIES } from '../../../../shared/file-access/local-file-access'
-import { getAllowedRoots } from './filesystem-allowed-roots'
+import { getAllowedRootsWithPlans as getAllowedRoots } from '../../../plans-folder/plans-allowed-roots'
 import {
   isDescendantOrEqual,
   isDescendantOrEqualExact,
