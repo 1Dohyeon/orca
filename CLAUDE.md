@@ -17,13 +17,26 @@
 
 ## Fork Workflow
 
-This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md` for code rules; this section covers branch management only.
+This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md` for code rules; this section covers branches, pull requests, and upstream syncing.
 
 ### Branches
 
 - `main`: Keep it identical to `upstream/main`. Never commit to it directly.
-- `develop`: The custom work branch. Custom work is based on `develop`.
-- Upstream contribution branches (`feat/*`, `fix/*`, etc.): Base them on `main`, never on `develop`. Open PRs against `stablyai/orca` `main`.
+- `develop`: Holds the customizations. Code changes reach it only through merged PRs and upstream syncs. Only the fork's own docs (`README.md`, `CLAUDE.md`) may be committed to it directly.
+- Custom work branches (`feat/*`, `fix/*`, etc.): Base them on `develop`. Open PRs against `develop` in this fork.
+- Upstream contribution branches: Base them on `main`, never on `develop`. Open PRs against `stablyai/orca` `main`.
+
+### Pull Requests Into `develop`
+
+- Always pass `--repo 1Dohyeon/orca` to `gh`. Without it, `gh` may target `stablyai/orca` because this repository is a fork.
+- Title: a Conventional Commit subject, like upstream (`feat(scope): summary`). Pick the scope from the area the change lives in.
+- Body: use the sections of `.github/pull_request_template.md`, but write only what can be stated in text. Leave out `Linked Issue`, `Visual Proof`, and the screenshot checklist item. State unverified items and failing checks as they are, and check a checklist item only when it is true.
+- Merge only when the user asks. Use squash merge, with the subject `<PR title> (1Dohyeon/orca#<PR number>)`:
+  `gh pr merge <number> --repo 1Dohyeon/orca --squash --subject "<PR title> (1Dohyeon/orca#<number>)"`
+- Use the full `1Dohyeon/orca#<number>` reference. A bare `#<number>` links to the PR of whichever repository shows the commit, so it would point at an unrelated `stablyai/orca` PR there, and `1Dohyeon#<number>` is not linked by GitHub at all.
+- After the merge, update the local `develop` with `git pull --ff-only origin develop`.
+
+Upstream contributions follow the full upstream template instead, including a linked issue (required for outside contributors) and before/after visuals for UI changes.
 
 ### Syncing Upstream
 
