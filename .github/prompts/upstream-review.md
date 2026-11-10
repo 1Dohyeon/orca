@@ -32,7 +32,7 @@ Look for changes that merge cleanly but break or diverge after the sync.
 
 1. PR changes: `git diff origin/<base>...HEAD` (or `gh pr diff <n>`).
 2. Overlapping files: intersect the PR's changed files with `git diff --name-only SYNC upstream/main`. Read the upstream side with `git diff SYNC upstream/main -- <file>`.
-3. Dependencies: for symbols the PR calls, imports, extends, or relies on, check upstream with `git grep -n <symbol> upstream/main` and `git log --oneline -S<symbol> SYNC..upstream/main`. Flag symbols that upstream renamed, removed, moved, or changed in signature or behavior. This includes files the PR does not touch.
+3. Dependencies: for symbols the PR calls, imports, extends, or relies on, find the files that define or use them with `Grep` on the checked-out tree, read the upstream version with `git show upstream/main:<path>`, and find upstream commits touching them with `git log --oneline -S<symbol> SYNC..upstream/main`. Flag symbols that upstream renamed, removed, moved, or changed in signature or behavior. This includes files the PR does not touch.
 4. Duplicated features: scan `git log --oneline --no-merges SYNC..upstream/main` for commits that add the same capability as the PR, then confirm with `git show --stat <commit>` and `git show <commit>`.
 5. Behavior divergence: upstream changed a contract (config keys, IPC payloads, defaults, file locations) that the PR's code assumes.
 
