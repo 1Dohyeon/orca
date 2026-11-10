@@ -1,0 +1,49 @@
+name: upstream-review
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  upstream-review:
+    # The trigger phrase has no @claude, so the claude workflow does not also run.
+    if: >-
+      github.event.issue.pull_request &&
+      github.event.issue.state == 'open' &&
+      contains(github.event.comment.body, '/upstream-review') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/stablyai/orca.git
+          git fetch --no-tags upstream main
+          git fetch upstream 'refs/tags/v*:refs/tags/v*'
+
+      # claude_args is parsed like shell arguments, so single quotes become '\'' to stay one argument.
+      # Lines starting with # (after leading spaces) are dropped as comments, so the prompt avoids them.
+      - name: Read upstream review prompt
+        id: prompt
+        run: |
+          {
+            echo 'text<<UPSTREAM_PROMPT_EOF'
+            sed "s/'/'\\\\''/g" .github/prompts/upstream-review.md
+            echo 'UPSTREAM_PROMPT_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          trigger_phrase: /upstream-review
+          claude_args: |
+            --append-system-prompt '${{ steps.prompt.outputs.text }}'
+            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git grep:*),Bash(git merge-tree:*),Bash(git merge-base:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git for-each-ref:*),Bash(gh pr view:*),Bash(gh pr diff:*)"
