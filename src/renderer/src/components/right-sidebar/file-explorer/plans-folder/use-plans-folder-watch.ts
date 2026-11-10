@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useEffectEvent } from 'react'
 import { dirname } from '@/lib/path'
 import {
   isPathInsideOrEqual,
@@ -30,10 +30,18 @@ export function usePlansFolderWatch(
   expanded: ReadonlySet<string>,
   refreshDir: (dirPath: string) => Promise<void>
 ): void {
-  const expandedRef = useRef(expanded)
-  expandedRef.current = expanded
-  const refreshDirRef = useRef(refreshDir)
-  refreshDirRef.current = refreshDir
+  const refreshChangedDirs = useEffectEvent((root: string, changed: string[] | 'all') => {
+    const changedKeys =
+      changed === 'all' ? null : new Set(changed.map(normalizeRuntimePathForComparison))
+    for (const dirPath of expanded) {
+      if (
+        isPathInsideOrEqual(root, dirPath) &&
+        (changedKeys === null || changedKeys.has(normalizeRuntimePathForComparison(dirPath)))
+      ) {
+        void refreshDir(dirPath)
+      }
+    }
+  })
 
   useEffect(() => {
     if (!plansRoot) {
@@ -44,17 +52,7 @@ export function usePlansFolderWatch(
       if (normalizeRuntimePathForComparison(payload.worktreePath) !== rootKey) {
         return
       }
-      const changed = changedDirs(payload.events)
-      const changedKeys =
-        changed === 'all' ? null : new Set(changed.map(normalizeRuntimePathForComparison))
-      for (const dirPath of expandedRef.current) {
-        if (
-          isPathInsideOrEqual(plansRoot, dirPath) &&
-          (changedKeys === null || changedKeys.has(normalizeRuntimePathForComparison(dirPath)))
-        ) {
-          void refreshDirRef.current(dirPath)
-        }
-      }
+      refreshChangedDirs(plansRoot, changedDirs(payload.events))
     })
     // A failed watch only loses live updates; manual refresh still rereads the folder.
     window.api.fs.watchWorktree({ worktreePath: plansRoot }).catch(() => {})
