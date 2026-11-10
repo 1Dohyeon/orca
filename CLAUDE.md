@@ -32,6 +32,7 @@ This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md`
 - Always pass `--repo 1Dohyeon/orca` to `gh`. Without it, `gh` may target `stablyai/orca` because this repository is a fork.
 - Title: a Conventional Commit subject, like upstream (`feat(scope): summary`). Pick the scope from the area the change lives in.
 - Body: use the sections of `.github/pull_request_template.md`, but write only what can be stated in text. Leave out `Linked Issue`, `Visual Proof`, and the screenshot checklist item. State unverified items and failing checks as they are, and check a checklist item only when it is true.
+- To check a PR against the latest `stablyai/orca` main, comment `/upstream-review` on it without `@claude`. `.github/workflows/upstream-review.yml` reports text and semantic conflicts with the upstream SHA and nearest release tag it used.
 - Merge only when the user asks. Use squash merge, with the subject `<PR title> (1Dohyeon/orca#<PR number>)`.
 - Squash body: list each PR commit subject as `* <subject>`, separated by blank lines, without commit body details (they stay visible in the merged PR). Pass it with `--body-file` so GitHub does not fill in its default body:
   `gh pr merge <number> --repo 1Dohyeon/orca --squash --subject "<PR title> (1Dohyeon/orca#<number>)" --body-file <file>`
