@@ -31,7 +31,9 @@ describe.runIf(process.platform === 'win32')('plansHomeRoot on Windows', () => {
     ['~\\notes\\plans', 'C:\\Users\\me\\notes\\plans'],
     ['D:\\workspace\\plans', 'D:\\workspace\\plans'],
     ['D:/workspace/plans/', 'D:\\workspace\\plans'],
-    ['notes\\plans', 'C:\\Users\\me\\plans']
+    ['notes\\plans', 'C:\\Users\\me\\plans'],
+    ['\\plans', 'C:\\Users\\me\\plans'],
+    ['/plans', 'C:\\Users\\me\\plans']
   ])('resolves %j to %s', (plansFolderPath, expected) => {
     expect(plansHomeRoot({ plansFolderPath }, home)).toBe(expected)
   })
