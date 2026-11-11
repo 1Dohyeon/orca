@@ -24,6 +24,19 @@ export const getGeneralWorkspaceSearchDescriptors = createLocalizedCatalog(() =>
       ...translateSearchKeyword('auto.components.settings.general.search.df10666259', 'worktree')
     ]
   }),
+  generalSetting(GENERAL_SETTING_ANCHORS.plansFolder, {
+    title: translate('settings.general.plansFolder.title', 'Plans folder'),
+    description: translate(
+      'settings.general.plansFolder.description',
+      'Root folder that holds plans for each repository. Leave empty to use ~/plans.'
+    ),
+    keywords: [
+      ...translateSearchKeyword('settings.general.search.keywords.plans', 'plans'),
+      ...translateSearchKeyword('auto.components.settings.general.search.7887a2c262', 'folder'),
+      ...translateSearchKeyword('auto.components.settings.general.search.fb4f338a3d', 'path'),
+      ...translateSearchKeyword('auto.components.settings.general.search.explorer', 'explorer')
+    ]
+  }),
   generalSetting(GENERAL_SETTING_ANCHORS.worktrees, {
     title: translate(
       'auto.components.settings.general.search.externalWorktrees',

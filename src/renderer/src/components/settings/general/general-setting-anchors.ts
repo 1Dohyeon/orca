@@ -3,6 +3,7 @@ import type { GeneralSubPage } from './general-sub-pages'
 
 export const GENERAL_SETTING_ANCHORS = {
   folder: 'general-workspace-folder',
+  plansFolder: 'general-plans-folder',
   nesting: 'general-workspace-nesting',
   worktrees: 'general-global-worktree-visibility',
   openIn: 'general-open-in-apps',
@@ -30,6 +31,7 @@ export const GENERAL_SETTING_ANCHORS = {
 
 export const GENERAL_SETTING_OWNERS: Readonly<Record<string, GeneralSubPage | null>> = {
   [GENERAL_SETTING_ANCHORS.folder]: 'folder',
+  [GENERAL_SETTING_ANCHORS.plansFolder]: 'folder',
   [GENERAL_SETTING_ANCHORS.nesting]: 'folder',
   [GENERAL_SETTING_ANCHORS.worktrees]: 'worktrees',
   [GENERAL_SETTING_ANCHORS.openIn]: 'open-in',
