@@ -1,6 +1,6 @@
 import { GENERAL_SETTING_ANCHORS } from './general-setting-anchors'
-import React, { useEffect, useId, useRef, useState } from 'react'
-import { FolderOpen, RotateCcw } from 'lucide-react'
+import React, { useId, useState } from 'react'
+import { RotateCcw } from 'lucide-react'
 import type { GlobalSettings } from '../../../../../shared/global-settings-types'
 import {
   getEffectiveHostSetting,
@@ -12,12 +12,11 @@ import { LOCAL_EXECUTION_HOST_ID } from '../../../../../shared/execution-host'
 import { normalizeWorkspaceDirInput } from '../../../../../shared/worktree/workspace-dir-input'
 import { isWindowsUserAgent } from '@/app-shell/platform/user-agent-platform'
 import { Button } from '../../ui/button'
-import { Input } from '../../ui/input'
 import { Label } from '../../ui/label'
 import { HostCombobox } from '../../host-picker/HostCombobox'
 import { SearchableSetting } from '../section-layout/SearchableSetting'
 import { useSidebarHostScopeOptions } from '../../sidebar/worktree-list/controls/use-sidebar-host-scope-options'
-import { isImeCompositionKeyDown } from '@/lib/text-input/ime/ime-composition-keyboard-event'
+import { FolderPathInput } from './FolderPathInput'
 import {
   buildHostScopeChoices,
   CLIENT_DEFAULT_SCOPE,
@@ -62,20 +61,6 @@ export function WorkspaceDirectorySetting({
         settings.workspaceDir
       )
     : settings.workspaceDir
-  // settings:set creates directories; per-keystroke commits would create every typed prefix.
-  const [draftValue, setDraftValue] = useState(value)
-  const draftValueRef = useRef(value)
-  const skipNextBlurCommitRef = useRef(false)
-
-  useEffect(() => {
-    setDraftValue(value)
-    draftValueRef.current = value
-  }, [value])
-
-  const setDraft = (next: string): void => {
-    draftValueRef.current = next
-    setDraftValue(next)
-  }
 
   const writeValue = (next: string): void => {
     if (!editingHost) {
@@ -92,28 +77,6 @@ export function WorkspaceDirectorySetting({
     })
   }
 
-  const commitDraftValue = (): void => {
-    // Show the value main will save, so a padded re-save of the saved path writes nothing.
-    const next = normalizeWorkspaceDirInput(draftValueRef.current, isWindowsUserAgent())
-    setDraft(next)
-    if (next === value) {
-      return
-    }
-    writeValue(next)
-  }
-
-  const handleBlur = (): void => {
-    if (skipNextBlurCommitRef.current) {
-      skipNextBlurCommitRef.current = false
-      return
-    }
-    commitDraftValue()
-  }
-
-  const resetDraftValue = (): void => {
-    setDraft(value)
-  }
-
   const resetOverride = (): void => {
     if (!editingHost) {
       return
@@ -125,20 +88,6 @@ export function WorkspaceDirectorySetting({
         'defaultWorktreeLocation'
       )
     })
-  }
-
-  const handleBrowse = async (): Promise<void> => {
-    try {
-      const path = await window.api.repos.pickFolder()
-      if (path) {
-        setDraft(path)
-        writeValue(path)
-        return
-      }
-      resetDraftValue()
-    } finally {
-      skipNextBlurCommitRef.current = false
-    }
   }
 
   // Match sidebar multi-host gating; local-only users need no scope picker.
@@ -185,46 +134,13 @@ export function WorkspaceDirectorySetting({
           </div>
         )}
       </div>
-      <div className="flex gap-2">
-        <Input
-          id={inputId}
-          value={draftValue}
-          onChange={(e) => {
-            setDraft(e.target.value)
-          }}
-          onBlur={handleBlur}
-          onKeyDown={(e) => {
-            // IME candidate-confirming Enter must not commit; wait for a noncomposition Enter.
-            if (isImeCompositionKeyDown(e)) {
-              return
-            }
-            if (e.key === 'Enter') {
-              skipNextBlurCommitRef.current = true
-              commitDraftValue()
-              e.currentTarget.blur()
-              return
-            }
-            if (e.key === 'Escape') {
-              skipNextBlurCommitRef.current = true
-              resetDraftValue()
-              e.currentTarget.blur()
-            }
-          }}
-          className="flex-1 text-xs"
-        />
-        <Button
-          variant="outline"
-          size="sm"
-          onPointerDown={() => {
-            skipNextBlurCommitRef.current = true
-          }}
-          onClick={() => void handleBrowse()}
-          className="shrink-0 gap-1.5"
-        >
-          <FolderOpen className="size-3.5" />
-          {t('auto.components.settings.GeneralWorkspaceSettingsSection.5567191a6e', 'Browse')}
-        </Button>
-      </div>
+      {/* settings:set creates directories; per-keystroke commits would create every typed prefix. */}
+      <FolderPathInput
+        id={inputId}
+        value={value}
+        normalize={(draft) => normalizeWorkspaceDirInput(draft, isWindowsUserAgent())}
+        onCommit={writeValue}
+      />
       {editingHost && (
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">

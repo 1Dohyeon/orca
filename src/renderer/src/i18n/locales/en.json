@@ -1192,7 +1192,8 @@
           "custom": "custom",
           "indentation": "indentation",
           "long_lines": "long lines",
-          "about": "about"
+          "about": "about",
+          "plans": "plans"
         }
       },
       "cli": {
@@ -1241,6 +1242,11 @@
       "about": {
         "title": "About",
         "version": "Orca {{version}}"
+      },
+      "plansFolder": {
+        "title": "Plans folder",
+        "description": "Root folder that holds plans for each repository. Leave empty to use ~/plans.",
+        "placeholder": "~/plans"
       }
     },
     "openInApp": {

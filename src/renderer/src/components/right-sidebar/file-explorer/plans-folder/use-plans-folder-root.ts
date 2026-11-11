@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useAppStore } from '@/store/index'
 import { getFileExplorerOperationOwner } from '../navigation/file-explorer-operation-owner'
 
 /** The repo's plans folder for a local git worktree; null otherwise or when the folder is missing. */
@@ -8,6 +9,8 @@ export function usePlansFolderRoot(
   isGitRepo: boolean
 ): string | null {
   const [resolved, setResolved] = useState<{ worktreePath: string; plansRoot: string } | null>(null)
+  // Main derives the root from this setting, so a change must re-run the lookup.
+  const plansFolderPath = useAppStore((s) => s.settings?.plansFolderPath)
   useEffect(() => {
     if (
       !worktreePath ||
@@ -33,6 +36,6 @@ export function usePlansFolderRoot(
     return () => {
       cancelled = true
     }
-  }, [worktreePath, activeWorktreeId, isGitRepo])
+  }, [worktreePath, activeWorktreeId, isGitRepo, plansFolderPath])
   return isGitRepo && resolved?.worktreePath === worktreePath ? resolved.plansRoot : null
 }
