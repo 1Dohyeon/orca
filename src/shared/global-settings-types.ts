@@ -57,6 +57,8 @@ export type GlobalSettings = GlobalSettingsBase & {
   hostSettingOverrides?: Partial<Record<ExecutionHostId, HostSettingOverrides>>
   nestWorkspaces: boolean
   workspaceDirHistory?: OrcaWorkspaceLayout[]
+  /** Local root that holds per-repo plans folders; empty means ~/plans. */
+  plansFolderPath?: string
   refreshLocalBaseRefOnWorktreeCreate: boolean
   /** Permanently dismisses the suggestion to enable local base refresh. */
   localBaseRefSuggestionDismissed: boolean
