@@ -51,6 +51,9 @@ export function suppressDevEducationForStore(store: DevEducationStore, now = Dat
   if (ui.contextualToursAutoEligible !== false) {
     updates.contextualToursAutoEligible = false
   }
+  if (ui.starNagCompleted !== true) {
+    updates.starNagCompleted = true
+  }
   if (
     Object.keys(nextFeatureInteractions).length !== Object.keys(ui.featureInteractions ?? {}).length
   ) {
