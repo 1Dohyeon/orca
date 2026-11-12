@@ -14761,7 +14761,9 @@
             "branchCommits": {
               "loading": "Loading commits",
               "empty": "No commits on this branch",
-              "more": "More commits not shown"
+              "more": "More commits not shown",
+              "viewByFile": "View by file",
+              "viewByCommit": "View by commit"
             }
           },
           "SourceControlAgentActionDialog": {

@@ -1,5 +1,8 @@
 import React from 'react'
+import { GitCommitVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/lib/class-names'
 import { useTranslate } from '@/i18n/use-translate'
 import type {
   GitBranchChangeEntry,
@@ -13,6 +16,55 @@ import { SectionHeader } from './section-header'
 import { formatSourceControlRefLabel } from '../panel/branch-context-stats'
 import { SourceControlBranchTreeDirectoryRow } from './tree-directory-rows'
 import { VirtualizedList } from '../../../virtualized-list'
+import { BranchCommitList, type BranchCommitListActions } from './branch-commit-list'
+import type { BranchCommitsState } from '../sync/use-branch-commits'
+import type { SourceControlFileFilterState } from './file-filter'
+
+export type BranchCommitView = {
+  enabled: boolean
+  onToggle: () => void
+  state: BranchCommitsState
+  fileFilterState: SourceControlFileFilterState
+  actions: BranchCommitListActions
+}
+
+function BranchCommitViewToggle({
+  enabled,
+  onToggle
+}: {
+  enabled: boolean
+  onToggle: () => void
+}): React.JSX.Element {
+  const t = useTranslate()
+  const label = enabled
+    ? t('auto.components.right.sidebar.SourceControl.branchCommits.viewByFile', 'View by file')
+    : t('auto.components.right.sidebar.SourceControl.branchCommits.viewByCommit', 'View by commit')
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          className={cn(
+            enabled ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+          )}
+          aria-label={label}
+          aria-pressed={enabled}
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggle()
+          }}
+        >
+          <GitCommitVertical className="size-3.5" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={6}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  )
+}
 
 export function SourceControlBranchSection({
   activeOpenRowKeys,
@@ -32,7 +84,8 @@ export function SourceControlBranchSection({
   activeConnectionId,
   openCommittedDiff,
   openBranchAllDiffs,
-  diffCommentCountByPath
+  diffCommentCountByPath,
+  commitView
 }: {
   activeOpenRowKeys: ReadonlySet<string>
   branchSummary: GitBranchCompareSummary
@@ -56,6 +109,7 @@ export function SourceControlBranchSection({
     summary: GitBranchCompareSummary
   ) => void
   diffCommentCountByPath: Map<string, number>
+  commitView?: BranchCommitView
 }): React.JSX.Element {
   const t = useTranslate()
   const baseRef = branchSummary.baseRef?.trim()
@@ -83,24 +137,35 @@ export function SourceControlBranchSection({
         isCollapsed={collapsedSections.has('branch')}
         onToggle={() => toggleSection('branch')}
         actions={
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className="px-1.5 text-muted-foreground hover:text-foreground"
-            onClick={(e) => {
-              e.stopPropagation()
-              if (currentWorktreeId && worktreePath && branchSummary) {
-                openBranchAllDiffs(currentWorktreeId, worktreePath, branchSummary)
-              }
-            }}
-          >
-            {t('auto.components.right.sidebar.SourceControl.48db37cca9', 'View all')}
-          </Button>
+          <>
+            {commitView && (
+              <BranchCommitViewToggle enabled={commitView.enabled} onToggle={commitView.onToggle} />
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              className="px-1.5 text-muted-foreground hover:text-foreground"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (currentWorktreeId && worktreePath && branchSummary) {
+                  openBranchAllDiffs(currentWorktreeId, worktreePath, branchSummary)
+                }
+              }}
+            >
+              {t('auto.components.right.sidebar.SourceControl.48db37cca9', 'View all')}
+            </Button>
+          </>
         }
       />
       {!collapsedSections.has('branch') &&
-        (sourceControlViewMode === 'tree' ? (
+        (commitView?.enabled ? (
+          <BranchCommitList
+            state={commitView.state}
+            fileFilterState={commitView.fileFilterState}
+            actions={commitView.actions}
+          />
+        ) : sourceControlViewMode === 'tree' ? (
           <VirtualizedList
             rows={visibleBranchTreeRows}
             scrollElement={fileListScrollElement}
