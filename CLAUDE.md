@@ -61,8 +61,11 @@ Precondition: the working tree is clean. Otherwise stop and report.
 7. Resolve on a branch instead:
    - Create `sync/upstream-<YYYYMMDD>` from `origin/develop` (same steps as any work branch) and run `git merge --no-ff origin/main`.
    - During a merge, `--ours` is `develop` and `--theirs` is `main`. Keep the custom `README.md` and `CLAUDE.md` (`git checkout --ours <file>`). In other files preserve both the upstream change and the custom intent; if the intent is unclear, stop and ask.
-   - Verify: run `pnpm install` if the lockfile changed, then `pnpm tc`.
+   - Verify: run `pnpm install` if `pnpm-lock.yaml` changed and `pnpm --dir mobile install --frozen-lockfile` if `mobile/pnpm-lock.yaml` changed, then `pnpm tc`.
    - Push, open a PR from this branch into `develop`, and close the `main` PR with a link to it. `/upstream-review` on the new PR checks the resolutions.
    - Report the number of upstream commits pulled in, conflicted files and how each was resolved, and the verification results.
 8. Merge only when the user asks, with a merge commit:
    `gh pr merge <number> --repo 1Dohyeon/orca --merge --subject "<PR title> (1Dohyeon/orca#<number>)" --body ""`
+9. After the merge, update the local `develop` with `git pull --ff-only origin develop` and reinstall dependencies:
+   - Run `pnpm install` if `pnpm-lock.yaml` changed.
+   - Run `pnpm --dir mobile install --frozen-lockfile` if `mobile/pnpm-lock.yaml` changed. `mobile` is excluded from the root pnpm workspace, so the root install leaves it on the old versions and `pnpm install:mac` / `pnpm install:win` fail while building the mobile web bundle.
