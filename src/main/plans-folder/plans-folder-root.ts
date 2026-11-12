@@ -1,9 +1,9 @@
 import { stat } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import { plansFolderRelativePath } from '../../shared/plans-folder/plans-folder-path'
-import { readGitCommonDir } from '../git/canonical-repo-key'
-import { getRemoteUrl } from '../git/repo'
-import { gitExecFileAsync } from '../git/runner'
+import { gitExecFileAsync } from '../git/command-runner/git-exec-file'
+import { getRemoteUrl } from '../git/remotes/repo-remote-queries'
+import { readGitCommonDir } from '../git/repositories/canonical-repo-key'
 
 async function readMainCloneFolderName(worktreePath: string): Promise<string | null> {
   try {
