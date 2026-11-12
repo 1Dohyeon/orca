@@ -30,6 +30,7 @@ This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md`
 - `develop`: Holds the customizations. Code changes reach it only through merged PRs and upstream syncs. Only the fork's own docs (`README.md`, `CLAUDE.md`) may be committed to it directly.
 - Custom work branches (`feat/*`, `fix/*`, etc.): Base them on `develop`. Open PRs against `develop` in this fork.
 - Upstream contribution branches: Base them on `main`, never on `develop`. Open PRs against `stablyai/orca` `main`.
+- `exp/lite`: The build the user actually runs: `develop` minus the features the user does not use. See Lite Branch.
 
 ### Pull Requests Into `develop`
 
@@ -39,7 +40,7 @@ This repository is a personal custom fork of `stablyai/orca`. Follow `AGENTS.md`
 - Merge only when the user asks. Use squash merge, with the subject `<PR title> (1Dohyeon/orca#<PR number>)`.
 - Squash body: list each PR commit subject as `* <subject>`, separated by blank lines, without commit body details (they stay visible in the merged PR). Pass it with `--body-file` so GitHub does not fill in its default body:
   `gh pr merge <number> --repo 1Dohyeon/orca --squash --subject "<PR title> (1Dohyeon/orca#<number>)" --body-file <file>`
-- Exception: upstream sync PRs (head `main` or `sync/upstream-*`, see Syncing Upstream) use a merge commit, never squash. Squashing keeps `main` out of `develop`'s history, so every later sync re-applies the same upstream changes and conflicts again.
+- Exception: upstream sync PRs (head `main` or `sync/upstream-*`, see Syncing Upstream) and PRs from `develop` into `exp/lite` (see Lite Branch) use a merge commit, never squash. Squashing keeps the source branch out of the target's history, so every later sync re-applies the same changes and conflicts again.
 - Use the full `1Dohyeon/orca#<number>` reference. A bare `#<number>` links to the PR of whichever repository shows the commit, so it would point at an unrelated `stablyai/orca` PR there, and `1Dohyeon#<number>` is not linked by GitHub at all.
 - After the merge, update the local `develop` with `git pull --ff-only origin develop`.
 
@@ -69,3 +70,14 @@ Precondition: the working tree is clean. Otherwise stop and report.
 9. After the merge, update the local `develop` with `git pull --ff-only origin develop` and reinstall dependencies:
    - Run `pnpm install` if `pnpm-lock.yaml` changed.
    - Run `pnpm --dir mobile install --frozen-lockfile` if `mobile/pnpm-lock.yaml` changed. `mobile` is excluded from the root pnpm workspace, so the root install leaves it on the old versions and `pnpm install:mac` / `pnpm install:win` fail while building the mobile web bundle.
+
+### Lite Branch
+
+`exp/lite` is `develop` plus commits that remove features the user does not use. It still takes every upstream and custom change through merges, so fixes and refactors in the features that remain arrive without porting them one by one.
+
+- Commit only feature removals to `exp/lite`. Build custom features on `develop`; they reach `exp/lite` through merges.
+- PRs into `exp/lite` follow Pull Requests Into `develop`. Base their branches on `exp/lite`.
+- To update `exp/lite`, open a PR from `develop` into `exp/lite` and merge it with a merge commit. Never merge `exp/lite` into `develop`, and never base `develop` work or upstream contribution branches on it.
+- When that merge conflicts on a file `exp/lite` deleted, keep it deleted (`git rm`). Also delete files the merge newly adds under removed paths.
+- Resolve content conflicts where a removed feature was registered (routes, settings lists, imports, `package.json` scripts) by hand, keeping the removal. If the intent is unclear, stop and ask.
+- A critical upstream fix that `develop` has not synced yet may be ported to `exp/lite` by hand, in a PR that links the upstream PR. When a later merge conflicts with that port, take the upstream version.
