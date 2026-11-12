@@ -285,7 +285,8 @@ export async function initializeReadyFoundation(): Promise<void> {
     }
   })
   applyAppIcon(store.getSettings().appIcon)
-  if (shouldSuppressDevEducation({ isDev: !app.isPackaged })) {
+  // Custom build: packaged apps also skip onboarding, feature tips, tours, and the GitHub star prompt.
+  if (shouldSuppressDevEducation({ isDev: true })) {
     suppressDevEducationForStore(store)
   }
   // Install the proxy resolver before partitions materialize.
