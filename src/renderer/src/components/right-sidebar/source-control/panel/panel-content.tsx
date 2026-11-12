@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useGitCommitActionsSupport } from '@/runtime/source-control/git/git-commit-actions-capability'
+import { useBranchCommits } from '../sync/use-branch-commits'
 import { GitHistoryPanel } from '../sync/git-history-panel'
 import { shouldShowSourceControlCompareUnavailableCard } from './header-toolbar'
 import { shouldRenderCommitArea } from '../commit/component-gates'
@@ -96,6 +98,20 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
     !hasUncommittedEntries &&
     branchSummary?.status === 'ready' &&
     branchEntries.length === 0
+  const [branchCommitViewEnabled, setBranchCommitViewEnabled] = useState(false)
+  const branchCommitsState = useBranchCommits({
+    enabled:
+      branchCommitViewEnabled &&
+      branchSummary?.status === 'ready' &&
+      hasFilteredBranchEntries &&
+      !collapsedSections.has('branch'),
+    activeRepoTarget: model.activeRepoTarget,
+    activeWorktreeId: currentWorktreeId,
+    worktreePath,
+    compareBaseRef: branchSummary?.baseRef ?? null,
+    headOid: branchSummary?.headOid ?? null,
+    baseOid: branchSummary?.baseOid ?? null
+  })
 
   return (
     <>
@@ -230,6 +246,18 @@ export function SourceControlPanelContent(props: SourceControlPanelReadyProps) {
           openCommittedDiff={openCommittedDiff}
           openBranchAllDiffs={openBranchAllDiffs}
           diffCommentCountByPath={diffCommentCountByPath}
+          commitView={{
+            enabled: branchCommitViewEnabled,
+            onToggle: () => setBranchCommitViewEnabled((enabled) => !enabled),
+            state: branchCommitsState,
+            fileFilterState,
+            actions: {
+              loadCommitFiles,
+              openCommitFile,
+              openCommit: (item) => void openHistoryCommitDiff(item),
+              onCommitAction: handleCommitAction
+            }
+          }}
         />
       )}
 

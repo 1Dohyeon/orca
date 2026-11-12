@@ -14757,7 +14757,14 @@
             "markResolved": "Mark as resolved",
             "keepFile": "Keep file",
             "keepDeletion": "Keep deletion",
-            "refreshAll": "Refresh all"
+            "refreshAll": "Refresh all",
+            "branchCommits": {
+              "loading": "Loading commits",
+              "empty": "No commits on this branch",
+              "more": "More commits not shown",
+              "viewByFile": "View by file",
+              "viewByCommit": "View by commit"
+            }
           },
           "SourceControlAgentActionDialog": {
             "8e856842d1": "Could not start the selected agent.",
