@@ -18,7 +18,7 @@ This fork is a personal customization, so unit tests cover only the files a chan
 - Run `pnpm check:changed` only when the user asks. It runs the full unit test suite (about 8 minutes) and truncates long output, so run it once and keep everything you need from that run.
 - Redirect the full test output to a file in the session scratchpad, then read the failure list from that file. Do not rerun tests just to see which ones failed.
 - Before blaming or clearing your change, run the failing test files on the base checkout (`develop`) with `pnpm test <files> --maxWorkers=2`. Report failures that also fail on the base as pre-existing, and the rest as possibly caused by the change.
-- Tests under `tests/e2e/cross-version-wire/` need upstream release tags (for example `v1.4.222`). They fail with `unknown revision` unless the tags are fetched with `git fetch upstream --tags`.
+- Tests under `tests/e2e/cross-version-wire/` need upstream release tags (for example `v1.4.222`). They fail with `unknown revision` unless the tags are fetched with `git fetch upstream main --tags` (naming `main` keeps it from also pulling every upstream branch).
 
 ## Fork Workflow
 
@@ -53,7 +53,8 @@ Upstream contributions follow the full upstream template instead, including a li
 Precondition: the working tree is clean. Otherwise stop and report.
 
 1. If the `upstream` remote is missing, add it: `git remote add upstream https://github.com/stablyai/orca`
-2. `git fetch upstream`
+2. `git fetch upstream main`
+   - Always name `main`. A bare `git fetch upstream` pulls every upstream branch (over 17,000) and takes minutes, while only `main` is ever used.
 3. Update `main`: `git push origin upstream/main:main`, then `git fetch origin main:main`
    - If the fast-forward is rejected, `main` has diverged from upstream. Do not force it; stop and report.
 4. Open a PR from `main` into `develop`, titled `chore(sync): merge upstream main <short SHA> into develop`. Check for conflicts first with `git merge-tree --write-tree --name-only --no-messages origin/main origin/develop` (exit code 1 lists the conflicting files) and report them.
