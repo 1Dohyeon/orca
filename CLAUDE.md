@@ -10,9 +10,13 @@
 
 ## Test Runs
 
-`pnpm check:changed` runs the full unit test suite (about 8 minutes) and truncates long output. Run it once and keep everything you need from that run.
+This fork is a personal customization, so unit tests cover only the files a change touches. This replaces the `pnpm check:changed` run before every push that `AGENTS.md` asks for.
 
-- Redirect the full output to a file in the session scratchpad, then read the failure list from that file. Do not rerun the suite just to see which tests failed.
+- Run the tests in the folders of the changed files with `pnpm test <folders> --maxWorkers=2`. For an upstream sync, the changed files are the custom ones, listed by `git diff --name-only main develop`.
+- Still run `pnpm tc`, plus `pnpm exec oxlint` and `pnpm exec oxfmt --check` on the changed files.
+- Report which folders were tested and that the full suite was not run.
+- Run `pnpm check:changed` only when the user asks. It runs the full unit test suite (about 8 minutes) and truncates long output, so run it once and keep everything you need from that run.
+- Redirect the full test output to a file in the session scratchpad, then read the failure list from that file. Do not rerun tests just to see which ones failed.
 - Before blaming or clearing your change, run the failing test files on the base checkout (`develop`) with `pnpm test <files> --maxWorkers=2`. Report failures that also fail on the base as pre-existing, and the rest as possibly caused by the change.
 - Tests under `tests/e2e/cross-version-wire/` need upstream release tags (for example `v1.4.222`). They fail with `unknown revision` unless the tags are fetched with `git fetch upstream --tags`.
 
